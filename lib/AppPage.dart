@@ -6,7 +6,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 class AppPage extends StatefulWidget {
   final BluetoothDevice server;
 
-  const AppPage({this.server});
+  const AppPage({required this.server});
 
   @override
   _AppPage createState() => new _AppPage();
@@ -14,14 +14,14 @@ class AppPage extends StatefulWidget {
 
 
 class _AppPage extends State<AppPage> {
-  BluetoothConnection connection;
+  BluetoothConnection? connection;
 
   String _messageBuffer = '';
   String message = "";
 
 
   bool isConnecting = true;
-  bool get isConnected => connection != null && connection.isConnected;
+  bool get isConnected => connection != null && connection!.isConnected;
 
   bool isDisconnecting = false;
 
@@ -37,7 +37,7 @@ class _AppPage extends State<AppPage> {
         isDisconnecting = false;
       });
 
-      connection.input.listen(_onDataReceived).onDone(() {
+      connection!.input?.listen(_onDataReceived).onDone(() {
         // Example: Detect which side closed the connection
         // There should be `isDisconnecting` flag to show are we are (locally)
         // in middle of disconnecting process, should be set before calling
@@ -64,7 +64,7 @@ class _AppPage extends State<AppPage> {
     // Avoid memory leak (`setState` after dispose) and disconnect
     if (isConnected) {
       isDisconnecting = true;
-      connection.dispose();
+      connection!.dispose();
       connection = null;
     }
 
@@ -152,8 +152,8 @@ class _AppPage extends State<AppPage> {
 
     if (text.length > 0) {
       try {
-        connection.output.add(utf8.encode(text + "\r\n"));
-        await connection.output.allSent;
+        connection!.output.add(Uint8List.fromList(utf8.encode(text)));
+        await connection!.output.allSent;
 
       } catch (e) {
         // Ignore error, but notify state

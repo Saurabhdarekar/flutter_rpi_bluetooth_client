@@ -2,6 +2,13 @@
 
 a chat app with the arduino or raspberry pi via Bluetooth
 
+Steps to run the Application
+
+1) flutter pub add flutter_bluetooth_serial:^0.4.0
+2) flutter pub get
+3) flutter create .
+4) flutter run
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

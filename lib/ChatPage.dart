@@ -7,7 +7,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 class ChatPage extends StatefulWidget {
   final BluetoothDevice server;
 
-  const ChatPage({this.server});
+  const ChatPage({required this.server});
 
   @override
   _ChatPage createState() => new _ChatPage();
@@ -22,9 +22,12 @@ class _Message {
 
 class _ChatPage extends State<ChatPage> {
   static final clientID = 0;
-  BluetoothConnection connection;
+  BluetoothConnection? connection;
 
-  List<_Message> messages = List<_Message>();
+
+  // ignore: deprecated_member_use
+  // List<_Message> messages = List<_Message>();
+  List<_Message> messages = [];
   String _messageBuffer = '';
 
   final TextEditingController textEditingController =
@@ -32,7 +35,7 @@ class _ChatPage extends State<ChatPage> {
   final ScrollController listScrollController = new ScrollController();
 
   bool isConnecting = true;
-  bool get isConnected => connection != null && connection.isConnected;
+  bool get isConnected => connection != null && connection!.isConnected;
 
   bool isDisconnecting = false;
 
@@ -48,7 +51,7 @@ class _ChatPage extends State<ChatPage> {
         isDisconnecting = false;
       });
 
-      connection.input.listen(_onDataReceived).onDone(() {
+      connection!.input?.listen(_onDataReceived)?.onDone(() {
         // Example: Detect which side closed the connection
         // There should be `isDisconnecting` flag to show are we are (locally)
         // in middle of disconnecting process, should be set before calling
@@ -75,7 +78,7 @@ class _ChatPage extends State<ChatPage> {
     // Avoid memory leak (`setState` after dispose) and disconnect
     if (isConnected) {
       isDisconnecting = true;
-      connection.dispose();
+      connection!.dispose();
       connection = null;
     }
 
@@ -111,10 +114,10 @@ class _ChatPage extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
           title: (isConnecting
-              ? Text('Connecting chat to ' + widget.server.name + '...')
+              ? Text('Connecting chat to ' + (widget.server.name  ?? "Unknown") + '...')
               : isConnected
-                  ? Text('Live chat with ' + widget.server.name)
-                  : Text('Chat log with ' + widget.server.name))),
+                  ? Text('Live chat with ' + (widget.server.name  ?? "Unknown"))
+                  : Text('Chat log with ' + (widget.server.name  ?? "Unknown")))),
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -215,8 +218,8 @@ class _ChatPage extends State<ChatPage> {
 
     if (text.length > 0) {
       try {
-        connection.output.add(utf8.encode(text + "\r\n"));
-        await connection.output.allSent;
+        connection!.output.add(Uint8List.fromList(utf8.encode(text)));
+        await connection!.output.allSent;
 
         setState(() {
           messages.add(_Message(clientID, text));
@@ -228,6 +231,7 @@ class _ChatPage extends State<ChatPage> {
               duration: Duration(milliseconds: 333),
               curve: Curves.easeOut);
         });
+
       } catch (e) {
         // Ignore error, but notify state
         setState(() {});

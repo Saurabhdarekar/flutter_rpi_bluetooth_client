@@ -15,7 +15,7 @@ class _MainPage extends State<MainPage> {
 
 
   bool connected = false;
-  BluetoothDevice _device;
+  BluetoothDevice? _device;
 
   @override
   void initState() {
@@ -51,14 +51,16 @@ class _MainPage extends State<MainPage> {
         child: ListView(
           children: <Widget>[
             Divider(),
-            ListTile(title: Text("Device: " + (_device == null? "..." : _device.name))),
+            ListTile(
+                    title: Text("Device: " + (_device?.name ?? "No device selected")),
+                    ),
             ListTile(
               title: ElevatedButton(
                 child: const Text('Start Chat'),
                 onPressed: () async {
                   if (_device != null) {
-                    print('Connect -> selected ' + _device.address);
-                    _startChat(context, _device);
+                    print('Connect -> selected ' + _device!.address);
+                    _startChat(context, _device!);
                   } else {
                     print('Connect -> no device selected');
                   }
